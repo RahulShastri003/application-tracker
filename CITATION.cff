@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use Application Tracker in academic work, teaching, demos, or derived projects, please cite it."
+type: software
+title: "Application Tracker"
+version: "0.1.0-alpha"
+authors:
+  - family-names: "Shastri"
+    given-names: "Rahul"
+repository-code: "https://github.com/RahulShastri003/application-tracker"
+url: "https://github.com/RahulShastri003/application-tracker"
+license: "AGPL-3.0-or-later"
+abstract: "A local-first tracker for academic applications such as postdocs, PhDs, fellowships, and grants."

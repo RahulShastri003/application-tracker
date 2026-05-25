@@ -1,0 +1,31 @@
+{
+  "name": "application-tracker",
+  "version": "0.1.0-alpha",
+  "description": "A local-first academic application tracker with folder-backed data and document storage.",
+  "author": "Rahul Shastri",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RahulShastri003/application-tracker.git"
+  },
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs --port=4174",
+    "start:custom-port": "node server.mjs",
+    "check": "node --check server.mjs && node --check app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "academic",
+    "postdoc",
+    "phd",
+    "fellowship",
+    "grant",
+    "applications",
+    "tracker",
+    "local-first"
+  ],
+  "license": "AGPL-3.0-or-later"
+}

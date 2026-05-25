@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Application Tracker</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Top-level navigation. Most interaction logic is in app.js. -->
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand-row">
+            <div>
+              <h1 id="homeTitle">Application Tracker</h1>
+            </div>
+            <div class="top-actions">
+              <button class="btn ghost notification-button" id="notificationsButton" type="button">
+                Notifications <span class="notification-count hidden" id="notificationCount">0</span>
+              </button>
+              <button class="btn primary" id="newEntry" type="button">New Entry</button>
+              <div class="menu-wrap">
+                <button class="btn ghost" id="moreButton" type="button">More</button>
+                <div class="menu hidden" id="moreMenu">
+                  <button id="toggleAi" type="button">AI Assistant</button>
+                  <button id="addDemoEntries" type="button">Add Demo Entries</button>
+                  <button id="toggleTheme" type="button">Dark Theme</button>
+                  <button id="exportCsv" type="button">Export Files</button>
+                  <button id="importFiles" type="button">Import Files</button>
+                  <input class="hidden" id="importJson" type="file" accept=".csv,.json,text/csv,application/json" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <!-- Dashboard controls -->
+        <section class="filters" aria-label="Tracker filters">
+          <input id="search" type="search" placeholder="Search by short key, opportunity name, professor, country, paper, preparation note..." />
+          <select id="statusFilter">
+            <option value="all">All statuses</option>
+          </select>
+          <select id="deadlineFilter">
+            <option value="all">All deadlines</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="overdue">Overdue</option>
+            <option value="none">No deadline</option>
+          </select>
+          <select id="sortBy">
+            <option value="updated">Recently updated</option>
+            <option value="added">Recently added</option>
+            <option value="deadline">Nearest deadline</option>
+            <option value="status">Status</option>
+          </select>
+          <button class="btn" id="clearFilters" type="button">Clear</button>
+        </section>
+
+        <section class="stats" id="stats"></section>
+
+        <section class="panel notification-panel hidden" id="notificationPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">Notifications</h2>
+            <span class="saved">Deadlines and pending follow-ups.</span>
+          </div>
+          <div id="notificationList"></div>
+        </section>
+
+        <!-- AI assistant panel -->
+        <section class="utility-panel hidden" id="aiPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">AI Assistant</h2>
+            <button class="btn" id="closeAi" type="button">Close</button>
+          </div>
+          <div class="section-body ai-box">
+            <div class="ai-thread" id="aiThread"></div>
+            <div class="ai-composer">
+              <textarea id="aiQuestion" placeholder="Ask anything..."></textarea>
+              <div class="ai-toolbar">
+                <details class="ai-settings">
+                  <summary>AI connection</summary>
+                  <div class="three-col">
+                    <div class="field">
+                      <label for="aiProvider">Provider</label>
+                      <select id="aiProvider">
+                        <option value="">Local assistant only</option>
+                        <option value="ollama">Ollama local model</option>
+                        <option value="gemini">Gemini API</option>
+                        <option value="groq">Groq API</option>
+                        <option value="openrouter">OpenRouter API</option>
+                        <option value="mistral">Mistral API</option>
+                        <option value="openai-compatible">Custom OpenAI-compatible</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="aiModel">Model</label>
+                      <input id="aiModel" list="aiModelSuggestions" placeholder="Model name" />
+                      <datalist id="aiModelSuggestions">
+                        <option value="gemini-2.5-flash"></option>
+                        <option value="gemini-2.0-flash"></option>
+                        <option value="qwen2.5:0.5b"></option>
+                        <option value="llama3.1:8b"></option>
+                        <option value="llama3.2:3b"></option>
+                        <option value="qwen2.5:7b"></option>
+                        <option value="mistral:7b"></option>
+                        <option value="llama-3.1-8b-instant"></option>
+                        <option value="openai/gpt-oss-20b:free"></option>
+                        <option value="mistral-small-latest"></option>
+                      </datalist>
+                    </div>
+                    <div class="field">
+                      <label for="aiApiKey">API key</label>
+                      <input id="aiApiKey" type="password" placeholder="Provider API key, or leave blank to keep saved key" />
+                    </div>
+                  </div>
+                  <div class="field" id="aiBaseUrlField">
+                    <label for="aiBaseUrl">Custom API URL</label>
+                    <input id="aiBaseUrl" placeholder="http://localhost:11434/v1" />
+                    <span class="saved" id="aiProviderHint">Local assistant uses no external model.</span>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="btn" id="saveAiSettings" type="button">Save AI Settings</button>
+                    <button class="btn danger" id="clearAiKey" type="button">Clear Key</button>
+                  </div>
+                  <span class="saved" id="aiSettingsStatus">Without a provider, the built-in local assistant is used.</span>
+                </details>
+                <div class="panel-actions">
+                  <button class="btn primary" id="askAi" type="button">Ask AI</button>
+                  <button class="btn" id="copyAiAnswer" type="button">Copy Last Answer</button>
+                  <button class="btn" id="clearAiChat" type="button">Clear Chat</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Application rows are rendered by app.js. -->
+        <section class="panel" id="entriesPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">Applications</h2>
+            <span class="saved" id="dashboardHint">Click a row to expand or collapse its summary.</span>
+          </div>
+          <div id="entriesTableWrap"></div>
+        </section>
+
+        <!-- Entry editor. Field IDs intentionally match app.js field names. -->
+        <section class="form-panel hidden" id="formPanel">
+          <div class="panel-head">
+            <h2 class="panel-title" id="formTitle">New Entry</h2>
+            <div class="form-actions">
+              <button class="btn" id="cancelEdit" type="button">Back</button>
+              <button class="btn danger" id="deleteEntry" type="button">Delete</button>
+              <button class="btn primary" id="saveEntry" type="button">Save Changes</button>
+            </div>
+          </div>
+          <div class="form-body">
+            <div class="section">
+              <div class="section-title">Application Identity</div>
+              <div class="section-body">
+                <div class="three-col">
+                  <div class="field">
+                    <label for="applicationType">Application type</label>
+                    <select id="applicationType"></select>
+                  </div>
+                  <div class="field">
+                    <label for="key">Short key (optional)</label>
+                    <input id="key" placeholder="Leave blank for auto key, e.g. 001" />
+                  </div>
+                  <div class="field">
+                    <label for="jobName" id="jobNameLabel">Opportunity name</label>
+                    <input id="jobName" placeholder="e.g. Quantum thermodynamics postdoc" />
+                  </div>
+                </div>
+                <div class="three-col">
+                  <div class="field">
+                    <label for="country">Country / city</label>
+                    <input id="country" placeholder="e.g. Czech Republic / Prague" />
+                  </div>
+                </div>
+                <div class="three-col">
+                  <div class="field">
+                    <label for="deadline">Deadline</label>
+                    <input id="deadline" type="date" />
+                    <label class="checkbox-line">
+                      <input id="deadlineReminder" type="checkbox" />
+                      Remind me about this deadline
+                    </label>
+                  </div>
+                  <div class="field">
+                    <label for="jobUrl">Job link</label>
+                    <input id="jobUrl" placeholder="https://..." />
+                  </div>
+                  <div class="field">
+                    <label for="piName" id="piNameLabel">Contact</label>
+                    <input id="piName" placeholder="Name, email, lab website" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title" id="groupSectionTitle">Group / Organization Information</div>
+              <div class="section-body">
+                <div class="field">
+                  <label for="institution" id="institutionLabel">Institution / group</label>
+                  <input id="institution" placeholder="University, institute, lab" />
+                </div>
+                <div class="field">
+                  <label for="groupInfo" id="groupInfoLabel">Group information brief</label>
+                  <textarea id="groupInfo" placeholder="Research focus, methods, fit with your work, recent grants..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title" id="jobSectionTitle">Opportunity Information</div>
+              <div class="section-body">
+                <div class="field">
+                  <label for="jobBrief" id="jobBriefLabel">Opportunity information brief</label>
+                  <textarea id="jobBrief" placeholder="Project, eligibility, contract length, skills, start date..."></textarea>
+                </div>
+                <div class="field">
+                  <label for="keyPoints">Key points</label>
+                  <textarea id="keyPoints" placeholder="What to emphasize, risks, strengths, must-mention details..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" id="typeSpecificSection">
+              <div class="section-title" id="typeSpecificTitle">Type-specific Details</div>
+              <div class="section-body">
+                <span class="saved" id="typeSpecificDescription"></span>
+                <div class="two-col" id="typeSpecificFields"></div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Preparation For Application</div>
+              <div class="section-body">
+                <div class="two-col">
+                  <div class="field">
+                    <label for="cvChanges">CV / resume changes</label>
+                    <textarea id="cvChanges" placeholder="Tailor skills, reorder projects, add selected publications..."></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="referenceLetters">Reference letters</label>
+                    <textarea id="referenceLetters" placeholder="Who to ask, deadline, reminder plan, letter angle..."></textarea>
+                  </div>
+                </div>
+                <div class="two-col">
+                  <div class="field">
+                    <label for="papersToRead">Papers to read</label>
+                    <textarea id="papersToRead" placeholder="PI papers, group reviews, methods papers, notes..."></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="otherPreparation">Other preparation</label>
+                    <textarea id="otherPreparation" placeholder="Cover letter angle, research statement, email draft, interview prep..."></textarea>
+                  </div>
+                </div>
+                <div class="section">
+                  <div class="section-title">Application Files</div>
+                  <div class="section-body">
+                    <div class="three-col">
+                      <div class="field">
+                        <label for="documentType">Document type</label>
+                        <select id="documentType">
+                          <option>CV</option>
+                          <option>Research proposal</option>
+                          <option>Research statement</option>
+                          <option>Statement of purpose</option>
+                          <option>Cover letter</option>
+                          <option>Budget / justification</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label for="documentFile">Upload file</label>
+                        <input id="documentFile" type="file" accept=".pdf,.doc,.docx,.txt,.rtf" />
+                      </div>
+                      <div class="field">
+                        <label>&nbsp;</label>
+                        <button class="btn" id="uploadDocument" type="button">Attach Document</button>
+                      </div>
+                    </div>
+                    <label class="saved">
+                      <input id="saveAsMaster" type="checkbox" style="width: auto; min-height: auto; margin-right: 6px;" />
+                      Use this file as the default for future entries
+                    </label>
+                    <div class="saved" id="defaultFilesHint"></div>
+                    <div class="doc-list" id="formDocs"></div>
+                    <span class="saved" id="fileStorageHint">Files are stored locally for this app.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Application Status</div>
+              <div class="section-body">
+                <div class="status-picker" id="statusButtons"></div>
+                <div class="two-col status-date-fields" id="statusDateFields">
+                  <div class="field" id="submittedDateField">
+                    <label for="submittedDate">Submitted date</label>
+                    <input id="submittedDate" type="date" />
+                  </div>
+                  <div class="field" id="followUpDateField">
+                    <label for="followUpDate">Next follow-up date</label>
+                    <input id="followUpDate" type="date" />
+                    <label class="checkbox-line">
+                      <input id="followUpReminder" type="checkbox" />
+                      Remind me about this follow-up
+                    </label>
+                  </div>
+                </div>
+                <span class="saved" id="statusDateHelp"></span>
+                <div class="field">
+                  <label for="statusNotes">Status notes</label>
+                  <textarea id="statusNotes" placeholder="Submission confirmation, waiting notes, interview notes, decision details..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <span class="saved" id="savedState">Saved locally.</span>
+          </div>
+          <div class="form-footer">
+            <span class="saved" id="footerStorageHint">Attachments and edits are kept locally after saving.</span>
+            <div class="form-actions">
+              <button class="btn" id="cancelEditBottom" type="button">Back</button>
+              <button class="btn danger" id="deleteEntryBottom" type="button">Delete</button>
+              <button class="btn primary" id="saveEntryBottom" type="button">Save Changes</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
