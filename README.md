@@ -2,9 +2,7 @@
 
 ## About
 
-Application Tracker is a local app for postdoc, PhD, fellowship, and grant applications. It keeps deadlines, status, preparation notes, contacts, uploaded documents, and AI-assisted notes in one place.
-
-The app runs in the browser, but the real data is saved in local folders on the user's computer. Refreshing the browser or reopening the app reads the same saved data.
+Application Tracker is a local app for tracking postdoc, PhD, fellowship, and grant applications. It keeps deadlines, status, preparation notes, contacts, uploaded documents, and AI-assistance in one place. The app runs in the browser, but the real data is saved in local folders on the user's computer. Refreshing the browser or reopening the app reads the same saved data.
 
 Future contributors can add other tracks, such as faculty jobs or industry jobs, by extending the `applicationTypes` configuration in `app.js`. The shared fields stay the same, while each application type can add its own fields.
 
