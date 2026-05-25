@@ -284,6 +284,7 @@ async function initializeApp() {
     entries = localEntries;
     masterDocuments = localMasters;
   }
+  updateDemoBanner();
   await loadAiSettings();
   updateStorageLabels();
   renderAll();
@@ -360,6 +361,11 @@ function updateStorageLabels(message = "") {
       ? "Attachments and edits are saved in the local tracker folder after saving."
       : "Attachments and edits are kept in this browser after saving.";
   }
+}
+
+function updateDemoBanner() {
+  if (!$("demoBanner")) return;
+  $("demoBanner").classList.toggle("hidden", serverStorage.ready);
 }
 
 async function loadAiSettings() {

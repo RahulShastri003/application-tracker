@@ -214,6 +214,15 @@ main {
   gap: 16px;
 }
 
+.demo-banner {
+  border: 1px solid color-mix(in srgb, var(--amber) 50%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--amber) 13%, var(--panel));
+  color: var(--ink);
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
 /* Dashboard filters, form controls, and summary stats */
 .filters {
   display: grid;

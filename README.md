@@ -44,7 +44,15 @@ Then open:
 http://localhost:4174
 ```
 
-The full app must run on the user's own computer because uploaded documents are stored in local folders. A public GitHub Pages demo can be added later for preview only; that demo should clearly say that folder-backed file storage requires the downloaded version.
+The full app must run on the user's own computer because uploaded documents are stored in local folders.
+
+Browser demo:
+
+```text
+https://rahulshastri003.github.io/application-tracker/
+```
+
+The demo runs without the local Node server. It is useful for trying the interface, but entries stay in that browser and uploaded files are not saved into local folders.
 
 ## Project Structure
 
@@ -56,6 +64,7 @@ server.mjs          Local backend API, file storage, and AI provider calls
 vendor/             Bundled browser libraries
 data/               Local user data, ignored by Git
 docs/               Architecture notes
+.github/workflows/  GitHub Actions checks and Pages demo deployment
 LICENSE             AGPL-3.0-or-later license text
 NOTICE              Authorship and attribution notice
 CITATION.cff        Citation metadata shown by GitHub
