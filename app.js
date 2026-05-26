@@ -811,18 +811,18 @@ function renderEntries() {
           .map(
             (entry) => `
               <tr class="entry-row ${entry.id === selectedId ? "expanded" : ""}" data-entry-id="${entry.id}">
-                <td class="select-cell">
+                <td class="select-cell" data-label="Select">
                   <input type="checkbox" data-select-entry="${entry.id}" ${selectedEntryIds.has(entry.id) ? "checked" : ""} aria-label="Select ${escapeHtml(entry.key || entry.jobName || "entry")}" />
                 </td>
-                <td><span class="key">${escapeHtml(entry.key || "AUTO")}</span></td>
-                <td>
+                <td data-label="Key"><span class="key">${escapeHtml(entry.key || "AUTO")}</span></td>
+                <td data-label="Opportunity">
                   <div class="job-name">${escapeHtml(entry.jobName || `Untitled ${applicationTypeLabel(entry.applicationType)} application`)}</div>
                   <div class="muted">${escapeHtml(applicationTypeLabel(entry.applicationType))}${entry.institution || entry.piName ? ` | ${escapeHtml(entry.institution || entry.piName)}` : ""}</div>
                 </td>
-                <td><span class="badge ${statusClass(entry.status)}">${escapeHtml(entry.status)}</span></td>
-                <td>${escapeHtml(entry.deadline ? formatDate(entry.deadline) : "No deadline")}</td>
-                <td>${escapeHtml(entry.country || "Not set")}</td>
-                <td>${escapeHtml(formatDateTime(entry.updatedAt))}</td>
+                <td data-label="Status"><span class="badge ${statusClass(entry.status)}">${escapeHtml(entry.status)}</span></td>
+                <td data-label="Deadline">${escapeHtml(entry.deadline ? formatDate(entry.deadline) : "No deadline")}</td>
+                <td data-label="Country / city">${escapeHtml(entry.country || "Not set")}</td>
+                <td data-label="Updated">${escapeHtml(formatDateTime(entry.updatedAt))}</td>
               </tr>
               ${entry.id === selectedId ? renderEntrySummary(entry) : ""}
             `,
