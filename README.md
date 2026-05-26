@@ -32,6 +32,8 @@ Linux:   run ./start-tracker.sh
 
 Keep the terminal window open while using the tracker. Closing it stops the local server, but saved entries and files remain in the `data` folder.
 
+A fresh tracker opens with a small set of demo academic applications. Edit or delete them when you start using the app for your own applications.
+
 Terminal launch:
 
 ```sh
@@ -53,6 +55,8 @@ https://rahulshastri003.github.io/application-tracker/
 ```
 
 The demo runs without the local Node server. It is useful for trying the interface, but entries stay in that browser and uploaded files are not saved into local folders.
+
+The browser demo also opens with the same sample entries, so visitors can test the dashboard without creating anything first.
 
 ## Project Structure
 

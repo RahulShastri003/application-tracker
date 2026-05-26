@@ -92,6 +92,7 @@ const storageKey = "postdoc-application-tracker-v1";
 const masterStorageKey = "postdoc-application-master-files-v1";
 const themeStorageKey = "application-tracker-theme";
 const dismissedReminderStorageKey = "application-tracker-dismissed-reminders";
+const demoSeedStorageKey = "application-tracker-demo-seeded-v1";
 const maxFileBytes = 25 * 1024 * 1024;
 let pdfLibPromise = null;
 const fields = [
@@ -284,10 +285,25 @@ async function initializeApp() {
     entries = localEntries;
     masterDocuments = localMasters;
   }
+  const seededDemoEntries = await seedDemoEntriesIfEmpty();
   updateDemoBanner();
   await loadAiSettings();
-  updateStorageLabels();
+  updateStorageLabels(seededDemoEntries ? "Demo entries loaded. Edit or delete them when you start your own tracker." : "");
   renderAll();
+  if (seededDemoEntries && $("dashboardHint")) {
+    $("dashboardHint").textContent = "Demo entries are loaded by default. Edit or delete them when you start your own tracker.";
+  }
+}
+
+async function seedDemoEntriesIfEmpty() {
+  if (entries.length || localStorage.getItem(demoSeedStorageKey) === "true") return false;
+  entries = createDemoEntries().map(normalizeEntry);
+  selectedId = null;
+  entriesPage = 1;
+  localStorage.setItem(demoSeedStorageKey, "true");
+  localStorage.setItem(storageKey, JSON.stringify(entries));
+  if (serverStorage.ready) await saveStateToServer();
+  return true;
 }
 
 async function tryLoadServerState() {
@@ -781,9 +797,7 @@ function renderEntries() {
     <table class="entries-table">
       <thead>
         <tr>
-          <th class="select-cell">
-            <input type="checkbox" data-select-page ${pageSelected ? "checked" : ""} ${somePageSelected && !pageSelected ? "data-mixed=\"true\"" : ""} aria-label="Select all entries on this page" />
-          </th>
+          <th class="select-cell" aria-label="Select entry"></th>
           <th>Key</th>
           <th>Opportunity</th>
           <th>Status</th>
@@ -1825,6 +1839,7 @@ function addDemoEntries() {
   }
   entries = mergeImportedEntries(entries, missingDemos);
   selectedId = null;
+  localStorage.setItem(demoSeedStorageKey, "true");
   persist();
   setMode("dashboard");
   renderAll();
